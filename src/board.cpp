@@ -1,5 +1,14 @@
 #include "board.h"
 
+board& board::operator=(const board& RHS){
+	level = RHS.level;
+	coins = RHS.coins;
+	used = RHS.used;
+	score = RHS.score;
+	for(int i=0; i<25; i++){
+		val[i] = RHS.val[i];
+	}
+}
 
 //===========================================
 //	SUMMATIONS
@@ -61,17 +70,32 @@ int board::get_val(int n){
 	return val[n];
 }
 
+int* board::get_board_val(){
+	return val;
+}
+
+int* board::get_rb(){
+	return rb;
+}
+int* board::get_cb(){
+	return cb;
+}
+int* board::get_rp(){
+	return rp;
+}
+int* board::get_cp(){
+	return cp;
+}
+
 //===========================================
 //	MUTATORS
 //===========================================
 
 int board::set_bomb(){
-	if(level<4){
+	if(level<4)
 		return level+5;
-	}
-	else if(level == 4 && coins <244){
+	else if(level == 4 && coins <244)
 		return level+4;
-	}
 	else
 		return 10;
 }
@@ -111,6 +135,13 @@ void board::reset_all(){
 void board::reset_c(){
 	score = 1;
 	set_coins();
+}
+
+void board::reset_l(int l){
+	score = 1;
+	init_active();
+	set_coins();
+	set_level(l);
 }
 
 void board::init_all(){
@@ -162,6 +193,15 @@ void board::gen_board(){
 	while(hold%3 == 0 && hold>0){
 		fill_slot(3);
 		hold = hold/3;
+	}
+}
+
+void board::fill_data(){
+	for(int i=0;i<5;i++){
+		cp[i] = sum_col(i);
+		cb[i] = sum_col_b(i);
+		rp[i] = sum_row(i);
+		rb[i] = sum_row_b(i);
 	}
 }
 
@@ -249,6 +289,20 @@ void board::board_stats(){
 
 int board::gen_num(int n){
 	return rand() % n;
+}
+
+void board::print_arr(int* a, int size){
+	for(int i=0; i<5; i++){
+		std::cout<<"[" <<std::setw(2)<<a[i]<<"] "; 
+	}
+}
+
+int board::get_row(int i){
+	return floor((double)i/5);
+}
+
+int board::get_col(int i){
+	return i%5;
 }
 
 //===========================================

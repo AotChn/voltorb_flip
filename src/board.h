@@ -7,6 +7,7 @@
 #include <time.h>
 #include "constants.h"
 #include "ai.h"
+#include "math.h"
 
 class board{
 private: 
@@ -14,8 +15,12 @@ private:
 		coins,
 		used,
 		score;
-	int val[25],
-		idx[25];
+	int val[25], 
+		idx[25],
+        rb[5],
+        cb[5],
+        rp[5],
+        cp[5];
 	bool active[25];
  	int p_coins[40] = {24,27,32,36,48,
  				   	   54,64,72,81,96,
@@ -28,6 +33,7 @@ private:
 public:
 	
 	board(){reset_all();used=0;}
+    board& operator=(const board& RHS);
 
 //===========================================
 //	SUMMATIONS
@@ -56,6 +62,11 @@ public:
     int get_score();
     int get_used();
     int get_val(int n);
+    int* get_board_val();
+    int* get_rb();
+    int* get_cb();
+    int* get_rp();
+    int* get_cp();
 
 //===========================================
 //	CREATION
@@ -69,6 +80,9 @@ public:
 
     //only resets coins and score;
     void reset_c();
+
+    //reset to certain level
+    void reset_l(int l);
 
     //initializes all arr
     void init_all();
@@ -84,6 +98,9 @@ public:
 
     //generates new board
     void gen_board();
+
+    //fill board data
+    void fill_data();
 
 //===========================================
 //	HELPER
@@ -112,6 +129,14 @@ public:
 
     //print board stats
     void board_stats();
+
+    //print arr
+    void print_arr(int*, int);
+
+    int get_row(int i);
+
+    int get_col(int i);
+
 
 //===========================================
 //	GAME MECH.

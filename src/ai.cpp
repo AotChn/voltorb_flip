@@ -30,3 +30,7 @@ int ai_player::get_index(){
 void ai_player::reset(){
 	used = 1;
 }
+
+// void ai_player::set_collector(board& b){
+// 	collector.set_board(b);
+// }

@@ -10,6 +10,13 @@ void game::win(){
 	score = 1;
 }
 
+void game::win(int l){
+	b.reset_l(l);
+	std::cout<<"LEVEL : "<<b.get_level()<<" COMPLETE"<<'\n';
+	wins++;
+	score = 1;
+}
+
 void game::lose(){
 	b.active_all();
 	b.print_board();
@@ -18,6 +25,17 @@ void game::lose(){
 	score = 1;
 	b.reset();
 }
+
+void game::lose(int l){
+	b.active_all();
+	b.print_board();
+	std::cout<<"YOU LOSE HAHA!"<<'\n';
+	loses++;
+	score = 1;
+	b.reset_l(l);
+}
+
+
 
 void game::complete(){
 	b.reset();
@@ -36,7 +54,7 @@ void game::winrate(){
 void game::reset(){
     wins=0;
 	loses=0;
-	it=5000,
+	it=1,
 	score=1,
 	cur_it=0;
 }
@@ -47,6 +65,7 @@ void game::play(ai_player ai){
 
 	while(cur_it != it){
 		b.print_board();
+		b.fill_data();
 		int choice = ai.get_index();
 
 		std::cout<<"select : ";
@@ -88,4 +107,65 @@ void game::play(){
 			win();
 		}
 	}
+}
+
+void game::play(ai_player ai,int i){
+	srand(time(NULL));
+	b.gen_board();
+	collector.set_board(b);
+
+	while(cur_it != i){
+		b.print_board();
+		b.fill_data();
+		int choice = ai.get_index();
+
+		std::cout<<"select : ";
+		std::cout<<choice<<std::endl;
+
+		score = score * b.get_val(choice);
+		if(score == 0){
+			lose();
+			ai.reset();
+			cur_it++;
+			collector.write_data();
+		}
+		if(score == b.get_coins()){
+			win();
+			ai.reset();
+			cur_it++;
+			collector.write_data();
+		}
+	}
+	winrate();
+	
+}
+
+void game::play(ai_player ai,int i, int l){
+		srand(time(NULL));
+	b.gen_board();
+	collector.set_board(b);
+
+	while(cur_it != i){
+		b.print_board();
+		b.fill_data();
+		int choice = ai.get_index();
+
+		std::cout<<"select : ";
+		std::cout<<choice<<std::endl;
+
+		score = score * b.get_val(choice);
+		if(score == 0){
+			lose(l);
+			ai.reset();
+			cur_it++;
+			collector.write_data();
+		}
+		if(score == b.get_coins()){
+			win(l);
+			ai.reset();
+			cur_it++;
+			collector.write_data();
+		}
+	}
+	winrate();
 }

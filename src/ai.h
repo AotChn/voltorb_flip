@@ -8,6 +8,7 @@
 class ai_player{
 	int choice[25];
 	int used;
+	//data collector;
 
 	public:
 	ai_player(){
@@ -23,6 +24,8 @@ class ai_player{
 
     //reset used
 	void reset();
+
+	//void set_collector(board& b);
 
 };
 
