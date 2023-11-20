@@ -74,6 +74,10 @@ int* board::get_board_val(){
 	return val;
 }
 
+bool* board::get_active(){
+	return active;
+}
+
 int* board::get_rb(){
 	return rb;
 }
@@ -102,7 +106,7 @@ int board::set_bomb(){
 
 void board::set_coins(){
 	int a = level-1,
-		r = gen_num(5);
+	r = gen_num(5);
 	coins = p_coins[(a*5)+r];
 }
 
@@ -139,9 +143,8 @@ void board::reset_c(){
 
 void board::reset_l(int l){
 	score = 1;
-	init_active();
-	set_coins();
 	set_level(l);
+	gen_board();
 }
 
 void board::init_all(){
@@ -173,6 +176,7 @@ void board::init_active(){
 void board::gen_board(){
 	init_val();
 	init_active();
+	used = 0;
 	
 	//set coins
 	set_coins();
@@ -223,9 +227,13 @@ void board::swap_end(int i, int size){
 }
 
 void board::fill_slot(int value){
-	int n = gen_num(25-used-1);
+	int n;
+	if(used == 24)
+		n = 0;
+	else
+		n = gen_num(24-used);
 	val[idx[n]] = value;
-	swap_end(n,25-used-1);
+	swap_end(n,24-used);
 	used++;
 }
 

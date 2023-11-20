@@ -73,6 +73,7 @@ Thumbs.db
 
 #vim files
 *.swp
+.csv
 
 .vscode/
 CMakeCache.txt

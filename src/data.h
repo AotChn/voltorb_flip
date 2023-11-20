@@ -15,7 +15,7 @@ private:
 public:
     data(){};
 
-    void write_data();
+    void write_data(std::string file_name = "voltorb_data.csv");
     void set_board(board g);
 
 
@@ -23,3 +23,4 @@ public:
 
 
 #endif
+

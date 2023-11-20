@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <time.h>
-#include "constants.h"
+
 #include "ai.h"
 #include "math.h"
 
@@ -63,6 +63,7 @@ public:
     int get_used();
     int get_val(int n);
     int* get_board_val();
+    bool* get_active();
     int* get_rb();
     int* get_cb();
     int* get_rp();
@@ -133,8 +134,10 @@ public:
     //print arr
     void print_arr(int*, int);
 
+    //gets row from index
     int get_row(int i);
 
+    //get col from index
     int get_col(int i);
 
 

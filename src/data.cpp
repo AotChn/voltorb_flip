@@ -1,8 +1,9 @@
 #include "data.h"
 
 
-void data::write_data(){
-    out.open("voltorb_data.csv",std::ofstream::app);
+void data::write_data(std::string file_name){
+    file_name += ".csv";
+    out.open(file_name,std::ofstream::app);
         b->fill_data();
         int* cp = b->get_cp();
         int* cb = b->get_cb();
