@@ -4,7 +4,7 @@
 
 **VOLTORB FLIP CLONE** runs voltorb flip and solves through machine learning 
 
-![Alt text](<Screen Shot 2023-11-17 at 10.59.36 PM.png>)
+![Alt text](<Voltorb_flip_titleScreen.png>)
 
 ## Supported Features
 
