@@ -118,6 +118,10 @@ void board::next_level(){
 	level++;
 }
 
+void board::set_active(int i, bool t){
+	active[i] = t;
+}
+
 //===========================================
 //	CREATION
 //===========================================
@@ -198,6 +202,7 @@ void board::gen_board(){
 		fill_slot(3);
 		hold = hold/3;
 	}
+	fill_data();
 }
 
 void board::fill_data(){

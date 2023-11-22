@@ -52,6 +52,7 @@ public:
     void set_coins();
     void set_level(int l);
     void next_level();
+    void set_active(int i, bool t);
 
 //===========================================
 //	ACCESSORS

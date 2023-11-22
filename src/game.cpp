@@ -192,6 +192,9 @@ void game::onNotify(sf::RenderWindow& window, int event){
 			draw(window);
 			return;
 		break;
+		case CUSTOM_SFEV::Close:
+			window.close();
+		break;
         case sf::Event::MouseButtonPressed:{
 
                 break;
@@ -218,6 +221,7 @@ void game::draw(sf::RenderWindow& window){
             toDraw.pop();
         }
 }
+
 
 void game::draw_tile(sf::RenderWindow& window, int i, sf::Color c){
 	sf::RectangleShape r;
@@ -250,18 +254,26 @@ void game::draw_board(sf::RenderWindow& window){
 }
 
 int game::start(){
-	I.set_file("../title_screen.png");
-	toDraw.push(&I);
-	_cursor.print();
+	srand(30);
+	_button.set_cursor(&_cursor);
+	_interface.set_file("../title_screen.png");
+	toDraw.push(&_interface);
+	//_cursor.print();
+	// if(_cursor.in_area(591,853,508,646)){
+	// 	_cursor.set_highlight_pos(591,508);
+	// 	_cursor.set_highlight_size(260,136);
+	// 	_cursor.set_highlight_color(SELECTED_BLUE);
+	// 	_cursor.highlight_on(true);
+	// }
+	// else
+	// 	_cursor.highlight_on(false);
+	_cursor.set_file("../farfetch_leak.png");
 	_cursor.hover();
-	if(_cursor.in_area(591,851,508,644)){
-		_cursor.set_highlight_pos(591,508);
-		_cursor.set_highlight_size(260,136);
-		_cursor.set_highlight_color(SELECTED_BLUE);
-	}
-	else
-		_cursor.hover();
 	toDraw.push(&_cursor);
+
+	_button.set_cursor(&_cursor);
+	_button.set_color(sf::Color::Blue);
+	_button.set_param(591*1.5,851*1.5,508*1.5,644*1.5);
 
 	switch (cur_EV){
 	case sf::Event::MouseButtonReleased:{
@@ -269,7 +281,7 @@ int game::start(){
 	break;
 	}
 	case sf::Event::MouseButtonPressed:{
-		if(_cursor.in_area(591,851,508,644)){
+		if(_button.contains_cursor()){
 			return IDLE;
 		}
 			
@@ -284,27 +296,60 @@ int game::start(){
 	}   
 
 	}
-	
+	toDraw.push(&_button);
 	return START;
 }
 int game::idle(){
-	// T.set_position(0,0);
-	// T.set_fill(PATH_GREEN);
+
 	B.set_board(&b);
-	toDraw.push(&B);
-//	toDraw.push(&T);
+	B.set_file("../voltorb_tiles.png");
+	_side.set_file("../voltorb_info2.png");
+	_side.set_side_info(b_ptr);
+	_cursor.hover();
 	switch (cur_EV){
 		case sf::Event::MouseButtonPressed:{
-			return END;
+			if(_cursor.in_area(0,1000,0,1000)){
+				b.set_active(_cursor.get_index(), true);
+				std::cout<<b.get_val(_cursor.get_index())<<" ";
+				_cursor.print_index();
+				if(b.get_val(_cursor.get_index())==0){
+					return LOST;
+				}
+			}
 		break;
 		}
 		
 		}
-
-
+			
+	toDraw.push(&B);
+	toDraw.push(&_side);
+	toDraw.push(&_cursor);
 	return IDLE;
 }
+
+int game::lost(){
+	b.active_all();
+	_cursor.hover();
+	_interface.set_file("../Lose_screen1.png",100);
+	toDraw.push(&B);
+	toDraw.push(&_cursor);
+	toDraw.push(&_interface);
+	switch (cur_EV){
+		case sf::Event::MouseButtonPressed:{
+			return END;
+		}
+	
+	}
+	return LOST;
+}
+
 int game::end(){
+	_interface.set_file("../Lose_screen1.png",255);
+	toDraw.push(&_interface);
+	switch (cur_EV){
+		case sf::Event::MouseButtonPressed:
+		break;
+	}
 	return END;
 }
 
@@ -315,6 +360,8 @@ void game::play(ai_player,int, int, std::string f,std::string mode){
 	}
 
 }
+
+
 
 
 // b.gen_board();

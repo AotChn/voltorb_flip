@@ -1,7 +1,7 @@
 #include "animate.h"
 
 animate::animate(){
-    window.create(sf::VideoMode(SCREEN_WIDTH,SCREEN_HEIGHT),"VOLTORB FLIP");
+    window.create(sf::VideoMode(1500,1500),"VOLTORB FLIP");
     window.setFramerateLimit(60);
     // sf::Mouse::setPosition(sf::Vector2i(0,0), window);
 }

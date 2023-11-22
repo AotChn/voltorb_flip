@@ -33,7 +33,6 @@ private:
     std::queue<drawable*> toDraw;
 
 public:
-enum State {START, IDLE, END};
 
 game() : cur_ST(0){
     reset();
@@ -119,25 +118,31 @@ game() : cur_ST(0){
     int start(); 
     int idle();
     int end();
+    int lost();
 
     int(game::*IDLE_ST)() = &game::idle;
     int(game::*END_ST)() = &game::end;
     int(game::*START_ST)() = &game::start;
+    int(game::*LOST_ST)() = &game::lost;
+
 
 //===========================================
 //	INTERFACE
 //===========================================
 
+enum State {START, IDLE, END, LOST};
 private:
-    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST};
+    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST, LOST_ST};
 
     int cur_ST;     //current State
     int cur_EV;     //current Event
 
-    tile_drw T;
+    tile_drw _tile;
     board_drw B;
-    interface_drw I;
+    interface_drw _interface;
     cursor_drw _cursor;
+    side_info_draw _side;
+    button_drw _button;
 };
 
 

@@ -20,4 +20,17 @@ const sf::Color RANGE_BLUE(51,78,232,100);
 const sf::Color PATH_YELLOW(242, 253, 91, 100);
 const sf::Color PATH_GREEN(91, 253, 97, 100);
 const sf::Color PATH_RED(253, 91, 118, 100);
+
+const sf::Color LINE_RED(227,123,123,255);
+const sf::Color LINE_YELLOW(226,227,123,255);
+const sf::Color LINE_GREEN(180,231,187,255);
+const sf::Color LINE_BLUE(137,139,198,225);
+const sf::Color LINE_PURPLE(217,81,87,223);
+
+const sf::Color ROYAL_BLUE(51,52,117,225);
+const sf::Color ROSEMARY_GREEN(51,117,56,225);
+
+
+
+
 #endif
