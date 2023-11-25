@@ -3,7 +3,8 @@
 ## Overview
 
 **VOLTORB FLIP CLONE** runs voltorb flip and solves through machine learning 
-all artwork uses is my own
+
+**all artwork uses is my own**
 
 ![Alt text](<Voltorb_flip_titleScreen.png>)
 
