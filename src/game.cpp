@@ -30,7 +30,7 @@ void game::lose(){
 
 void game::lose(int l){
 	b.active_all();
-	b.print_board();
+	//b.print_board();
 	std::cout<<"YOU LOSE HAHA!"<<'\n';
 	loses++;
 	score = 1;
@@ -217,111 +217,45 @@ void game::onNotify(sf::RenderWindow& window, int event){
 
 void game::draw(sf::RenderWindow& window){
 	while(!toDraw.empty()){
-            toDraw.front()->draw(window);
-            toDraw.pop();
+		toDraw.front()->draw(window);
+		toDraw.pop();
         }
 }
 
-
-void game::draw_tile(sf::RenderWindow& window, int i, sf::Color c){
-	sf::RectangleShape r;
-	r.setPosition(sf::Vector2f(b.get_col(i)*(SCREEN_WIDTH/5),b.get_row(i)*(SCREEN_HEIGHT/5)));
-    r.setSize(sf::Vector2f(SCREEN_WIDTH/5,SCREEN_HEIGHT/5));
-	r.setFillColor(c);
-	window.draw(r);
-}
-
-void game::draw_board(sf::RenderWindow& window){
-	for(int i=0; i<25; i++){
-		switch(b.get_val(i)){
-			case 0:
-				draw_tile(window, i, PATH_RED);
-				break;
-			case 1:
-				draw_tile(window, i, PATH_YELLOW);
-				break;
-			case 2:
-				draw_tile(window, i, PATH_GREEN);
-				break;
-			case 3:
-				draw_tile(window, i, SELECTED_BLUE);
-				break;
-			default:
-				draw_tile(window, i, GRID_GREY);
-				break;
-		}
-	}
-}
-
 int game::start(){
-	srand(30);
-	_button.set_cursor(&_cursor);
-	_interface.set_file("../title_screen.png");
+
+	switch (cur_EV){
+	case sf::Event::MouseButtonPressed:
+		if(_buttons[BUTTONS::PLAY]->contains_cursor())
+			return IDLE;
+	}
+	
+	set_interface(INTERFACE::TITLE);
+	_cursor.reTexturize();
 	toDraw.push(&_interface);
-	//_cursor.print();
-	// if(_cursor.in_area(591,853,508,646)){
-	// 	_cursor.set_highlight_pos(591,508);
-	// 	_cursor.set_highlight_size(260,136);
-	// 	_cursor.set_highlight_color(SELECTED_BLUE);
-	// 	_cursor.highlight_on(true);
-	// }
-	// else
-	// 	_cursor.highlight_on(false);
-	_cursor.set_file("../farfetch_leak.png");
-	_cursor.hover();
+	toDraw.push(_buttons[BUTTONS::PLAY]);
 	toDraw.push(&_cursor);
 
-	_button.set_cursor(&_cursor);
-	_button.set_color(sf::Color::Blue);
-	_button.set_param(591*1.5,851*1.5,508*1.5,644*1.5);
-
-	switch (cur_EV){
-	case sf::Event::MouseButtonReleased:{
-		//return IDLE;
-	break;
-	}
-	case sf::Event::MouseButtonPressed:{
-		if(_button.contains_cursor()){
-			return IDLE;
-		}
-			
-	break;
-	}
-	case sf::Event::MouseMoved:{
-	break;
-	}
-	default:{
-
-	break;
-	}   
-
-	}
-	toDraw.push(&_button);
 	return START;
 }
+
 int game::idle(){
 
-	B.set_board(&b);
-	B.set_file("../voltorb_tiles.png");
-	_side.set_file("../voltorb_info2.png");
-	_side.set_side_info(b_ptr);
-	_cursor.hover();
 	switch (cur_EV){
-		case sf::Event::MouseButtonPressed:{
-			if(_cursor.in_area(0,1000,0,1000)){
-				b.set_active(_cursor.get_index(), true);
-				std::cout<<b.get_val(_cursor.get_index())<<" ";
-				_cursor.print_index();
-				if(b.get_val(_cursor.get_index())==0){
-					return LOST;
-				}
-			}
-		break;
+	case sf::Event::MouseButtonPressed:
+		if(_board.contains_cursor()){
+			update_score(true);
+			if(lose_cond())
+				return LOST;
+			if(win_cond())
+				return WON;
+			flip_tile();
 		}
-		
-		}
+	break;
+	}
 			
-	toDraw.push(&B);
+	_cursor.reTexturize();
+	toDraw.push(&_board);
 	toDraw.push(&_side);
 	toDraw.push(&_cursor);
 	return IDLE;
@@ -329,37 +263,198 @@ int game::idle(){
 
 int game::lost(){
 	b.active_all();
-	_cursor.hover();
-	_interface.set_file("../Lose_screen1.png",100);
-	toDraw.push(&B);
-	toDraw.push(&_cursor);
-	toDraw.push(&_interface);
 	switch (cur_EV){
-		case sf::Event::MouseButtonPressed:{
-			return END;
-		}
-	
+		case sf::Event::MouseButtonPressed:
+			if(_buttons[BUTTONS::PLAY_AGAIN]->contains_cursor()){
+				lose(1);
+				return START;
+			}
+			if(_buttons[BUTTONS::QUIT]->contains_cursor()){
+				_cursor.close_on(true); 
+				toDraw.push(&_cursor);
+			}
 	}
+	
+	//std::cout<<"\nYOU HAVE LOST\n";
+
+	set_interface(INTERFACE::LOSE,90);
+	_cursor.reTexturize();
+	toDraw.push(&_board);
+	toDraw.push(&_interface);
+	toDraw.push(_buttons[BUTTONS::PLAY_AGAIN]);
+	toDraw.push(_buttons[BUTTONS::QUIT]);
+	toDraw.push(&_cursor);
 	return LOST;
 }
 
 int game::end(){
-	_interface.set_file("../Lose_screen1.png",255);
-	toDraw.push(&_interface);
+	switch (cur_EV){
+	case sf::Event::MouseButtonPressed:
+		_cursor.close_on(true); 
+		toDraw.push(&_cursor);
+	break;
+	}
+
+	return END;
+}
+
+int game::won(){
+	if(b.get_level()>8-1){
+		return COMPLETED;
+	}
+	win(b.get_level()+1);
 	switch (cur_EV){
 		case sf::Event::MouseButtonPressed:
 		break;
 	}
-	return END;
+
+	std::cout<<"\nYOU HAVE WON\n";
+	return IDLE;
+}
+
+int game::completed(){
+
+	switch (cur_EV){
+		case sf::Event::MouseButtonPressed:
+			if(_buttons[BUTTONS::PLAY_AGAIN]->contains_cursor()){
+				lose(1);
+				return START;
+			}
+			if(_buttons[BUTTONS::QUIT]->contains_cursor()){
+				_cursor.close_on(true); 
+				toDraw.push(&_cursor);
+			}
+	}
+	
+
+	set_interface(INTERFACE::COMPLETE,255);
+	_cursor.reTexturize();
+	toDraw.push(&_interface);
+	toDraw.push(_buttons[BUTTONS::PLAY_AGAIN]);
+	toDraw.push(_buttons[BUTTONS::QUIT]);
+	toDraw.push(&_cursor);
+
+	return COMPLETED;
 }
 
 void game::play(ai_player,int, int, std::string f,std::string mode){
-	srand(time(NULL));
-	while(cur_ST != END){
 
-	}
 
 }
+
+void game::init_cursor(){
+    _cursor.set_file("../farfetch_leak.png");
+	_cursor.reTexturize();
+    _board.set_cursor(&_cursor);
+}
+
+void game::init_board(){
+	_board.set_board(&b);
+	_board.set_file("../voltorb_tiles.png");
+    _side.set_side_info(&b);
+	_side.set_file("../voltorb_info.png");
+}
+
+void game::init_buttons(){
+	_buttons.push_back(play_button());
+	_buttons.push_back(play_again_button());
+	_buttons.push_back(quit_button());
+}
+
+button_drw* game::play_button(){
+    button_drw* button = new button_drw(&_cursor);
+	button->set_cursor(&_cursor);
+	button->set_file("../play_button.png");
+	button->set_color(sf::Color::Blue);
+	int startx= 591*1.5,
+		starty = 508*1.5,
+		dx = 600,
+		dy = 400;
+	button->set_param(startx,startx+dx,starty,starty+dy);
+	button->set_scale(.75);
+
+	return button;
+}
+
+button_drw* game::play_again_button(){
+    button_drw* button = new button_drw(&_cursor);
+	button->set_cursor(&_cursor);
+	button->set_file("../buttons.png");
+	button->set_color(sf::Color::Blue);
+	button->set_t(475,0);
+	int startx= 575,
+		starty = 1000+50+50,
+		dx = 475,
+		dy = 200;
+	button->set_param(startx,startx+dx,starty,starty+dy);
+	button->set_scale(1);
+
+	return button;
+}
+
+button_drw* game::quit_button(){
+    button_drw* button = new button_drw(&_cursor);
+	button->set_cursor(&_cursor);
+	button->set_file("../buttons.png");
+	button->set_color(sf::Color::Red);
+	button->set_t(0,0);
+	int startx= 0+50,
+		starty = 1000+50+50,
+		dx = 475,
+		dy = 200;
+	button->set_param(startx,startx+dx,starty,starty+dy);
+	button->set_scale(1);
+
+	return button;
+}
+
+void game::update_score(bool cheat){
+    score = score * b.get_val(_cursor.get_index());
+    if(!cheat)
+        score = b.get_coins();
+}
+
+bool game::win_cond(){
+    return score == b.get_coins();
+}
+
+bool game::lose_cond(){
+    return b.get_val(_cursor.get_index())==0;
+}
+
+void game::flip_tile(bool debug){
+    b.set_active(_cursor.get_index(), true);
+    if(debug){
+        std::cout<<b.get_val(_cursor.get_index())<<" ";
+        _cursor.print_index();
+	}
+}
+
+void game::set_interface(int cur, int alpha){
+    std::string file = "";
+    switch(cur){
+    case INTERFACE::TITLE:
+        file = "../title_screen.png";
+    break;
+    case INTERFACE::LOSE:
+        file = "../Lose_screen1.png";
+    break;
+    case INTERFACE::WIN:
+        file = "../win_screen.png";
+    break;
+	case INTERFACE::COMPLETE: 
+		file = "../level_8_complete.png";
+	break;
+    default:
+        file = "no file";
+    break;
+    }
+
+    _interface.set_file(file,alpha);
+}
+
+
+
 
 
 

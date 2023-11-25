@@ -1,10 +1,10 @@
 #include <iostream>
 #include "src/board.h"
 #include "src/game.h"
-#include "src/data.h"
+#include "src/ai/data.h"
 #include <algorithm>
 #include <chrono>
-#include "src/graphics/animate.h"
+#include "src/graphics/window/animate.h"
 
 int main(int argc, char **argv){
 	// game voltorb;

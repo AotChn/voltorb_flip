@@ -186,7 +186,7 @@ void board::gen_board(){
 	set_coins();
 
 	//sets bombs
-	for(int i=0; i<6; i++){
+	for(int i=0; i<set_bomb(); i++){
 		fill_slot(0);
 	}
 	

@@ -8,13 +8,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include "board.h"
-#include "ai.h"
-#include "data.h"
-#include "graphics/window_observer.h"
-#include "graphics/constants.h"
-#include "graphics/color_constants.h"
-#include "graphics/drawable.h"
-#include "graphics/cursor.h"
+#include "ai/ai.h"
+#include "ai/data.h"
+#include "graphics/window/window_observer.h"
+#include "graphics/window/constants.h"
+#include "graphics/window/color_constants.h"
+#include "graphics/drawable/drawable.h"
+#include "graphics/cursor/cursor.h"
 
 
 class game : public Window_Observer{
@@ -36,7 +36,10 @@ public:
 
 game() : cur_ST(0){
     reset();
-    b_ptr = &b;}
+    b_ptr = &b;
+    init_cursor();
+    init_board();
+    init_buttons();}
 
 //===========================================
 //	PLAY MODES
@@ -108,8 +111,6 @@ game() : cur_ST(0){
 //	Draw
 //===========================================
     void draw(sf::RenderWindow& window);
-    void draw_tile(sf::RenderWindow& window, int i, sf::Color c = sf::Color::Red);
-    void draw_board(sf::RenderWindow& window);
 
 //===========================================
 //	GAME STATES
@@ -119,43 +120,61 @@ game() : cur_ST(0){
     int idle();
     int end();
     int lost();
+    int won();
+    int completed();
 
     int(game::*IDLE_ST)() = &game::idle;
     int(game::*END_ST)() = &game::end;
     int(game::*START_ST)() = &game::start;
     int(game::*LOST_ST)() = &game::lost;
+    int(game::*WON_ST)() = &game::won;
+    int(game::*COMPLETED_ST)() = &game::completed;
 
-
-//===========================================
-//	INTERFACE
-//===========================================
-
-enum State {START, IDLE, END, LOST};
+enum State {START, IDLE, END, LOST, WON, COMPLETED};
 private:
-    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST, LOST_ST};
+    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST, LOST_ST, WON_ST, COMPLETED_ST};
 
     int cur_ST;     //current State
     int cur_EV;     //current Event
 
-    tile_drw _tile;
-    board_drw B;
     interface_drw _interface;
+    side_info_drw _side;
+    
+    //cursor dependents
     cursor_drw _cursor;
-    side_info_draw _side;
-    button_drw _button;
+    board_drw _board;
+    std::vector<button_drw*> _buttons;
+
+
+public:
+
+void init_cursor();
+
+void init_board();
+
+button_drw* play_button();
+
+button_drw* play_again_button();
+
+button_drw* quit_button();
+
+void update_score(bool cheat = false);
+
+bool win_cond();
+
+bool lose_cond();
+
+void flip_tile(bool debug = false);
+
+void init_buttons();
+
+enum INTERFACE {NON,TITLE,LOSE,WIN,COMPLETE};
+enum BUTTONS {PLAY, PLAY_AGAIN, QUIT};
+
+void set_interface(int cur=INTERFACE::NON, int alpha = 225);
+
 };
 
 
 
 #endif
-
-
-
-// void Animate::load_help_screen(){
-//     if(!texture.loadFromFile("sprites/help_menu.png")){
-//         cout<<"help screen failed to load";
-//     }
-//     sprite.setPosition(sf::Vector2f(250,168));
-//     sprite.setTexture(texture);
-//     window.draw(sprite);
-// } 

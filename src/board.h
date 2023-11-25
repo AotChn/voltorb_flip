@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "ai.h"
+#include "ai/ai.h"
 #include "math.h"
 
 class board{

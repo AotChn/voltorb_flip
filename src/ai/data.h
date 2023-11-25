@@ -4,7 +4,7 @@
 #include "iomanip"
 #include "iostream"
 #include "fstream"
-#include "board.h"
+#include "../board.h"
 
 class data{
 
@@ -17,7 +17,6 @@ public:
 
     void write_data(std::string file_name = "voltorb_data.csv");
     void set_board(board g);
-
 
 };
 
