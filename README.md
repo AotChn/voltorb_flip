@@ -3,6 +3,7 @@
 ## Overview
 
 **VOLTORB FLIP CLONE** runs voltorb flip and solves through machine learning 
+all artwork uses is my own
 
 ![Alt text](<Voltorb_flip_titleScreen.png>)
 
@@ -14,21 +15,17 @@ voltorb flip runs
 
 ```C++
 int main() {
-    game voltorb;
-    voltorb.play();
-    return 0;
+	animate app;
+	game voltorb;
+	app.Attach(&voltorb);
+	app.run();
 }
 ```
 
 ## Call in `Main() machine mode`
 
 ```C++
-int main() {
-    game voltorb;
-    ai_player william;
-    voltorb.play(william);
-    return 0;
-}
+//WIP
 ```
 
 ## Bugs/issues

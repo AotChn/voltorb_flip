@@ -20,11 +20,8 @@ int main(int argc, char **argv){
 
 	animate app;
 	game voltorb;
-	//ai_player william;
 	app.Attach(&voltorb);
 	app.run();
-	//voltorb.board_stats();
-	//voltorb.play(william, 1, 5,0,"sample");
     std::cout << "End of Main\n";
 }
 
