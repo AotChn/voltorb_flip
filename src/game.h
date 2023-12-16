@@ -29,17 +29,27 @@ private:
         score,
         it,
         cur_it,
-        comp=0;
+        comp=0,
+        games,
+        hold,
+        target_it=10;
     std::queue<drawable*> toDraw;
+    bool _ai;
+    int l_tracker[8]={0,0,0,0,0,0,0,0};
 
 public:
 
 game() : cur_ST(0){
+    score = 1;
+    it = 0;
+    games = 0;
+    hold = 1;
     reset();
     b_ptr = &b;
     init_cursor();
     init_board();
-    init_buttons();}
+    std::cout<<"starting it: "<<it<<"\n";}
+   // init_buttons();}
 
 //===========================================
 //	PLAY MODES
@@ -90,6 +100,8 @@ game() : cur_ST(0){
     void board_stats(){b.board_stats();
                        b.active_all();
                        b.print_board();}
+    void stat_check();
+    std::string stat_check_text();
 
 //===========================================
 //	ACCESSORS
@@ -104,12 +116,9 @@ game() : cur_ST(0){
 //===========================================
 //	PROCCESS Event 
 //===========================================
+    
     void update();
     void onNotify(sf::RenderWindow& window, int event) override;
-
-//===========================================
-//	Draw
-//===========================================
     void draw(sf::RenderWindow& window);
 
 //===========================================
@@ -122,6 +131,8 @@ game() : cur_ST(0){
     int lost();
     int won();
     int completed();
+    int ai_mode();
+    int ai_play();
 
     int(game::*IDLE_ST)() = &game::idle;
     int(game::*END_ST)() = &game::end;
@@ -129,10 +140,13 @@ game() : cur_ST(0){
     int(game::*LOST_ST)() = &game::lost;
     int(game::*WON_ST)() = &game::won;
     int(game::*COMPLETED_ST)() = &game::completed;
+    int(game::*AI_MODE_ST)() = &game::ai_mode;
+    int(game::*AI_PLAY_ST)() = &game::ai_play;
 
-enum State {START, IDLE, END, LOST, WON, COMPLETED};
 private:
-    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST, LOST_ST, WON_ST, COMPLETED_ST};
+    std::vector<int(game::*)()> _s = {START_ST, IDLE_ST, END_ST, 
+                                      LOST_ST, WON_ST, COMPLETED_ST,
+                                      AI_MODE_ST, AI_PLAY_ST};
 
     int cur_ST;     //current State
     int cur_EV;     //current Event
@@ -143,37 +157,71 @@ private:
     //cursor dependents
     cursor_drw _cursor;
     board_drw _board;
-    std::vector<button_drw*> _buttons;
-
+    // std::vector<button_drw*> _buttons;
+    //drawing text
+    text_drw _text;
 
 public:
 
+//===========================================
+//	INITILIZE
+//===========================================
+
+//sets cursor for drawables
 void init_cursor();
 
+//sets board for drawables
 void init_board();
 
-button_drw* play_button();
-
-button_drw* play_again_button();
-
-button_drw* quit_button();
-
-void update_score(bool cheat = false);
-
-bool win_cond();
-
-bool lose_cond();
-
-void flip_tile(bool debug = false);
-
+//sets up all buttons in game
 void init_buttons();
 
-enum INTERFACE {NON,TITLE,LOSE,WIN,COMPLETE};
-enum BUTTONS {PLAY, PLAY_AGAIN, QUIT};
+//===========================================
+//	DRAWABLE SETUPS
+//===========================================
 
+//button to start game
+button_drw* play_button();
+
+//button to start ai game
+button_drw* ai_button();
+
+//button to restart game
+button_drw* play_again_button();
+
+//button to quit game
+button_drw* quit_button();
+
+//chooses correct interface 
 void set_interface(int cur=INTERFACE::NON, int alpha = 225);
 
+//===========================================
+//	UTILITIY
+//===========================================
+
+//update score of game
+void update_score(int i=0, bool cheat = false);
+
+//checks if win condition have been met
+bool win_cond();
+
+//checks if lose condition have been met
+bool lose_cond(int i=0);
+
+//display chosen tile on board
+void flip_tile(int i=0, bool debug = false);
+
+//===========================================
+//	ENUMS
+//===========================================
+
+enum State {START, IDLE, END, LOST, WON, COMPLETED, AI_MODE, AI_PLAY};
+enum INTERFACE {NON, TITLE, LOSE, WIN, COMPLETE};
+enum BUTTONS {PLAY, PLAY_AGAIN, QUIT};
+
+
 };
+
 
 
 

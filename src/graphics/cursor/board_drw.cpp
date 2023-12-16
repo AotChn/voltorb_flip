@@ -95,3 +95,31 @@ int board_drw::get_row(int i){
 int board_drw::get_col(int i){
     return i%BOARD_N;
 }
+
+sf::RectangleShape board_drw::select(int i){
+    int tile_size=BOARD_SIZE/BOARD_N,
+        pos_x = BOARD_START_X,
+        pos_y = BOARD_START_Y,
+        total = BOARD_N*BOARD_N,
+        offset=10;
+    
+    sf::RectangleShape r;
+    r.setFillColor(sf::Color::Green);
+    r.setSize(sf::Vector2f(tile_size,tile_size));
+    r.setPosition(sf::Vector2f(tile_size*get_col(i)+pos_x,tile_size*get_row(i)+pos_y));
+    return r;
+}
+
+
+void board_drw::select_on(){
+    _select = true;
+}
+
+
+void board_drw::select_off(){
+    _select = false;
+}
+
+void board_drw::set_index(int i){
+    index = i;
+}

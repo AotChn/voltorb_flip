@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(Kingdom)
+project(Voltorb_flip)
 
 #. . . . . . . . . . . . . . . . . . . .
 include(GNUInstallDirs)
@@ -15,11 +15,19 @@ else()
 endif()
 
 
+
+
+
+
+
+
+
 # place binaries and libraries according to GNU standards
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(SFML_INCLUDE_DIR "./SFML-2.5.1/include")
 set(SFML_LIBRARY_DIR "./SFML-2.5.1/build/lib")
+
 
 link_directories(SFML_LIBRARY_DIR)
 include_directories(SFML_INCLUDE_DIR)

@@ -131,25 +131,12 @@ cursor_drw* _cursor;
 
 public:
 
-button_drw(){};
-button_drw(cursor_drw* c){_cursor = c;}
+button_drw(){set_type(1);}
+~button_drw(){};
+button_drw(cursor_drw* c){_cursor = c;set_type(1);}
 button_drw& operator=(const button_drw& RHS);
 
-    virtual void draw(sf::RenderWindow& window) override{
-        button.setFillColor(color);
-        button.setPosition(sf::Vector2f(xMin,yMin));
-        button.setSize(sf::Vector2f((xMax-xMin),(yMax-yMin)));
-        window.draw(button);
-        
-        if(contains_cursor())
-            hover();
-        else
-            idle();
-        button.setTexture(&texture);
-        button.setFillColor(sf::Color(255,255,255,alpha));
-        button.setTextureRect(sf::IntRect(t_x,t_y,t_size_x,t_size_y));
-        window.draw(button);
-    }
+virtual void draw(sf::RenderWindow& window) override;
 
 //===========================================
 //	ACCESSORS
@@ -224,12 +211,17 @@ class board_drw : public drawable{
     cursor_drw* _cursor;
     sf::Texture texture;
     sf::Sprite sprite;
+    bool _select;
+    int index;
 
 public:
     virtual void draw(sf::RenderWindow& window) override{
         draw_board(window);
         if(contains_cursor())
             hover(window);
+        if(_select)
+            window.draw(select(index));
+        select_off();
     }
 ;
 //===========================================
@@ -244,6 +236,9 @@ public:
 
     //sets the cursor to use
     void set_cursor(cursor_drw* c);
+
+    //selects an index to be highlighted
+    void set_index(int i);
 
 //===========================================
 //	UTILITY
@@ -263,6 +258,16 @@ public:
 
     //get col from index respect to board
     int get_col(int i);
+
+    //highlights the tile that is selected 
+    sf::RectangleShape select(int i);
+
+    //switches select on
+    void select_on();
+
+    //switches select off 
+    void select_off();
+
 };
 
 #endif

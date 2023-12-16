@@ -15,10 +15,15 @@ function: parent class of items that can be drawn in game
 *-----*-----*-----*-----*-----*-----*-----*-----**/
 class drawable{
 private:
+    int _type;
 
 public: 
+    drawable(){_type = 0;}
     virtual ~drawable(){}
     virtual void draw(sf::RenderWindow&){}
+
+    virtual int get_type(){return _type;}
+    virtual void set_type(int t){_type = t;}
 
 };
 
@@ -78,6 +83,48 @@ void draw_border_side(int start_x, int start_y, sf::RenderWindow& window);
 //draw info to the bottom side of board
 void draw_border_bot(int start_x, int start_y, sf::RenderWindow& window);
 
+};
+
+class text_drw : public drawable{
+sf::Text text;
+sf::Font font; 
+int x,
+    y,
+    size;
+std::string file,
+            str; 
+
+public:
+virtual void draw(sf::RenderWindow& window) override{
+    window.draw(text);
+}
+
+void set_file(std::string f){
+    file = f;
+    if(!font.loadFromFile(file)){
+       std::cout<< f <<" font failed to load";
+    }
+    text.setFont(font);
+}
+
+void set_pos(int i, int j){
+    x = i;
+    y = j;
+    text.setPosition(sf::Vector2f(x,y));
+}
+
+void set_size(int s){
+    size = s;
+    text.setCharacterSize(s);
+}
+
+void set_str(std::string s){
+    text.setString(s);
+}
+
+void set_color(sf::Color c){
+    text.setFillColor(c);
+}
 };
 
 #endif 

@@ -12,8 +12,6 @@ void game::win(){
 
 void game::win(int l){
 	b.reset_l(l);
-	std::cout<<"LEVEL : "<<b.get_level()<<" COMPLETE"<<'\n';
-	wins++;
 	score = 1;
 	if(b.get_level()>8)
 		complete();
@@ -31,8 +29,7 @@ void game::lose(){
 void game::lose(int l){
 	b.active_all();
 	//b.print_board();
-	std::cout<<"YOU LOSE HAHA!"<<'\n';
-	loses++;
+	//std::cout<<"YOU LOSE HAHA!"<<'\n';
 	score = 1;
 	b.reset_l(l);
 }
@@ -40,7 +37,7 @@ void game::lose(int l){
 
 
 void game::complete(){
-	std::cout<<"CONGRATS YOU HAVE COMPLETED ALL LEVELS!";
+	//std::cout<<"CONGRATS YOU HAVE COMPLETED ALL LEVELS!";
 	wins++;
 	score = 1;
 	comp++;
@@ -217,38 +214,59 @@ void game::onNotify(sf::RenderWindow& window, int event){
 
 void game::draw(sf::RenderWindow& window){
 	while(!toDraw.empty()){
-		toDraw.front()->draw(window);
+		drawable* d = toDraw.front(); 
+		d->draw(window);
 		toDraw.pop();
-        }
+		if(d->get_type()==1){ //button
+			delete d;
+		}
+    }
 }
 
 int game::start(){
 
+	button_drw* b = play_button();
+	button_drw* ai = ai_button();
+
+	_text.set_color(sf::Color::Black);
+	_text.set_size(75);
+	_text.set_str("temp. ai button");
+	_text.set_pos(591*1.5,508*1.5+450+100);
+
 	switch (cur_EV){
 	case sf::Event::MouseButtonPressed:
-		if(_buttons[BUTTONS::PLAY]->contains_cursor())
+		if(b->contains_cursor())
 			return IDLE;
+		if(ai->contains_cursor())
+			return AI_MODE;
 	}
 	
 	set_interface(INTERFACE::TITLE);
 	_cursor.reTexturize();
 	toDraw.push(&_interface);
-	toDraw.push(_buttons[BUTTONS::PLAY]);
+	toDraw.push(b);
+	toDraw.push(ai);
+	toDraw.push(&_text);
 	toDraw.push(&_cursor);
-
 	return START;
 }
+
+
 
 int game::idle(){
 
 	switch (cur_EV){
 	case sf::Event::MouseButtonPressed:
 		if(_board.contains_cursor()){
-			update_score(true);
-			if(lose_cond())
+			update_score(false);
+			if(lose_cond()){
+				loses++;
 				return LOST;
-			if(win_cond())
+			}
+			if(win_cond()){
+				wins++;
 				return WON;
+			}
 			flip_tile();
 		}
 	break;
@@ -262,27 +280,35 @@ int game::idle(){
 }
 
 int game::lost(){
+
+	button_drw* play_again = play_again_button();
+	button_drw* quit = quit_button();
+
+	//std::cout<<"LOST: " <<loses <<std::endl;
+
+	if(_ai)
+		return AI_MODE;
+
 	b.active_all();
 	switch (cur_EV){
-		case sf::Event::MouseButtonPressed:
-			if(_buttons[BUTTONS::PLAY_AGAIN]->contains_cursor()){
-				lose(1);
-				return START;
-			}
-			if(_buttons[BUTTONS::QUIT]->contains_cursor()){
-				_cursor.close_on(true); 
-				toDraw.push(&_cursor);
-			}
+	case sf::Event::MouseButtonPressed:
+		if(play_again->contains_cursor()){
+			lose(1);
+			return START;
+		}
+		if(quit->contains_cursor()){
+			_cursor.close_on(true); 
+			toDraw.push(&_cursor);
+		}
+	break;
 	}
-	
-	//std::cout<<"\nYOU HAVE LOST\n";
 
 	set_interface(INTERFACE::LOSE,90);
 	_cursor.reTexturize();
 	toDraw.push(&_board);
 	toDraw.push(&_interface);
-	toDraw.push(_buttons[BUTTONS::PLAY_AGAIN]);
-	toDraw.push(_buttons[BUTTONS::QUIT]);
+	toDraw.push(play_again);
+	toDraw.push(quit);
 	toDraw.push(&_cursor);
 	return LOST;
 }
@@ -299,48 +325,139 @@ int game::end(){
 }
 
 int game::won(){
+
+	//std::cout<<"WINS: "<<wins<<std::endl;
+
 	if(b.get_level()>8-1){
 		return COMPLETED;
 	}
+	std::cout<<"LEVEL : "<<b.get_level()<<" COMPLETE"<<'\n';
 	win(b.get_level()+1);
 	switch (cur_EV){
-		case sf::Event::MouseButtonPressed:
-		break;
+	case sf::Event::MouseButtonPressed:
+
+	break;
 	}
 
 	std::cout<<"\nYOU HAVE WON\n";
+	if(_ai)
+		return AI_MODE;
 	return IDLE;
 }
 
 int game::completed(){
 
+	button_drw* play_again = play_again_button();
+	button_drw* quit = quit_button();
+
 	switch (cur_EV){
-		case sf::Event::MouseButtonPressed:
-			if(_buttons[BUTTONS::PLAY_AGAIN]->contains_cursor()){
-				lose(1);
-				return START;
-			}
-			if(_buttons[BUTTONS::QUIT]->contains_cursor()){
-				_cursor.close_on(true); 
-				toDraw.push(&_cursor);
-			}
+	case sf::Event::MouseButtonPressed:
+		if(play_again->contains_cursor()){
+			lose(1);
+			return START;
+		}
+		if(quit->contains_cursor()){
+			_cursor.close_on(true); 
+			toDraw.push(&_cursor);
+		}
+	break;
 	}
 	
-
 	set_interface(INTERFACE::COMPLETE,255);
 	_cursor.reTexturize();
 	toDraw.push(&_interface);
-	toDraw.push(_buttons[BUTTONS::PLAY_AGAIN]);
-	toDraw.push(_buttons[BUTTONS::QUIT]);
+	toDraw.push(play_again);
+	toDraw.push(quit);
 	toDraw.push(&_cursor);
 
 	return COMPLETED;
 }
 
-void game::play(ai_player,int, int, std::string f,std::string mode){
+int game::ai_play(){
+	_text.set_pos(0,0);
+	_text.set_size(50);
+	_text.set_str(stat_check_text());
+	_text.set_color(sf::Color::Green);
 
+	toDraw.push(&_text);
+	_cursor.reTexturize();
+	toDraw.push(&_cursor);
+	return AI_PLAY;
+}
+
+int game::ai_mode(){
+	target_it = 25;
+
+	hold = games/target_it+1;
+	if(games%target_it==0){
+		std::cout<<"level up : "<< hold << "\n";
+	}
+	if(games>=8*target_it){
+		stat_check();
+		return AI_PLAY;
+	}
+	std::cout<<"| "<<games;
+	ai_player ai;
+	_ai = true;
+	ai.sorter(this->get_b_ptr());
+	int i = ai.get_index();
+	_board.select_on();
+	_board.set_index(i);
+	update_score(i,false);
+	//std::cout<<score<<"|"<<std::endl;
+	if(lose_cond(i)){
+		loses++;
+		b.active_all();
+		lose(hold);
+		games++;
+	}
+	if(win_cond()){
+		l_tracker[hold-1] = l_tracker[hold-1]+1;
+		wins++;
+		win(hold);
+		games++;
+	}
+	flip_tile(i);
+	it++;
+	_cursor.reTexturize();
+	toDraw.push(&_board);
+	toDraw.push(&_side);
+	toDraw.push(&_cursor);
+	//std::cout<<"in ai_play:";
+	return AI_MODE;
+}
+
+void game::stat_check(){
+	std::cout<<"--------STATS--------";
+	std::cout<<"\nGames played: "<<games;
+	std::cout<<"\nWins: "<<wins;
+	std::cout<<"\nLoses: "<<loses;
+	std::cout<<"\nWinrate: "<<double(wins)/(double(loses)+double(wins));
+	std::cout<<"\nIterations: "<<it<<"\n";
 
 }
+
+std::string game::stat_check_text(){
+	std::string str="";
+	str += "--------AI PERFORMANCE REPORT--------";
+	str+=  
+	"\nGames played: " + std::to_string(games) + 
+	"\nWins: " + std::to_string(wins) +
+	"\nLoses: " + std::to_string(loses) +
+	"\nWinrate: " + std::to_string(double(wins)/(double(loses)+double(wins))) +
+	"\nIterations: " + std::to_string(it);
+	
+	for(int i=0; i<8; i++){
+		str += "\n wins in L "+std::to_string(i+1) + ": " + std::to_string(l_tracker[i]) +
+		"/" + std::to_string(target_it)+ " ->rate: " +
+		std::to_string(double(l_tracker[i])/double(target_it));
+	}
+	if(double(wins)/(double(loses)+double(wins))<.8)
+		str += "\n\nwith a winrate less than 80% this ai is garbage"; 
+
+	return str;
+}
+
 
 void game::init_cursor(){
     _cursor.set_file("../farfetch_leak.png");
@@ -353,21 +470,34 @@ void game::init_board(){
 	_board.set_file("../voltorb_tiles.png");
     _side.set_side_info(&b);
 	_side.set_file("../voltorb_info.png");
+	_text.set_file("Nexa-Heavy.ttf");
 }
 
 void game::init_buttons(){
-	_buttons.push_back(play_button());
-	_buttons.push_back(play_again_button());
-	_buttons.push_back(quit_button());
+	// _buttons.push_back(play_button());
+	// _buttons.push_back(play_again_button());
+	// _buttons.push_back(quit_button());
 }
 
 button_drw* game::play_button(){
     button_drw* button = new button_drw(&_cursor);
-	button->set_cursor(&_cursor);
 	button->set_file("../play_button.png");
 	button->set_color(sf::Color::Blue);
 	int startx= 591*1.5,
 		starty = 508*1.5,
+		dx = 600,
+		dy = 400;
+	button->set_param(startx,startx+dx,starty,starty+dy);
+	button->set_scale(.75);
+
+	return button;
+}
+
+button_drw* game::ai_button(){
+    button_drw* button = new button_drw(&_cursor);
+	button->set_color(sf::Color::Blue);
+	int startx= 591*1.5,
+		starty = 508*1.5+450,
 		dx = 600,
 		dy = 400;
 	button->set_param(startx,startx+dx,starty,starty+dy);
@@ -408,22 +538,30 @@ button_drw* game::quit_button(){
 	return button;
 }
 
-void game::update_score(bool cheat){
+void game::update_score(int i, bool cheat){
     score = score * b.get_val(_cursor.get_index());
-    if(!cheat)
+	if(!cheat)
         score = b.get_coins();
+	if(_ai)
+		score = score * b.get_val(i);
 }
 
 bool game::win_cond(){
     return score == b.get_coins();
 }
 
-bool game::lose_cond(){
+bool game::lose_cond(int i){
+	if(_ai)
+		return b.get_val(i)==0;
     return b.get_val(_cursor.get_index())==0;
 }
 
-void game::flip_tile(bool debug){
-    b.set_active(_cursor.get_index(), true);
+void game::flip_tile(int i, bool debug){
+	if(_ai)
+		b.set_active(i,true);
+	else
+		b.set_active(_cursor.get_index(), true);
+
     if(debug){
         std::cout<<b.get_val(_cursor.get_index())<<" ";
         _cursor.print_index();

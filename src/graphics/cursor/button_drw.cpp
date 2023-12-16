@@ -1,6 +1,21 @@
 #include "cursor.h"
 
 
+void button_drw::draw(sf::RenderWindow& window){
+    button.setFillColor(color);
+    button.setPosition(sf::Vector2f(xMin,yMin));
+    button.setSize(sf::Vector2f((xMax-xMin),(yMax-yMin)));
+    window.draw(button);
+    
+    if(contains_cursor())
+        hover();
+    else
+        idle();
+    button.setTexture(&texture);
+    button.setFillColor(sf::Color(255,255,255,alpha));
+    button.setTextureRect(sf::IntRect(t_x,t_y,t_size_x,t_size_y));
+    window.draw(button);
+}
 
 void button_drw::set_color(sf::Color c){
     color = c;
